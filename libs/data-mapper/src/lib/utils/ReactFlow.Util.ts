@@ -1,3 +1,4 @@
+import type { CanvasExtent } from 'lib/ui/ReactFlowWrapper';
 import type { CardProps } from '../components/nodeCard/NodeCard';
 import type { SchemaCardProps } from '../components/nodeCard/SchemaCard';
 import type { FunctionCardProps } from '../components/nodeCard/functionCard/FunctionCard';
@@ -89,6 +90,8 @@ const placeholderReactFlowNode: ReactFlowNode = {
   },
 };
 
+export type CanvasDimensions = { canvasBlockHeight: number; canvasBlockWidth: number; canvasZoom: number };
+
 export const useLayout = (
   currentSourceSchemaNodes: SchemaNodeExtended[],
   functionNodes: FunctionDictionary,
@@ -96,11 +99,26 @@ export const useLayout = (
   connections: ConnectionDictionary,
   selectedItemKey: string | undefined,
   sourceSchemaOrdering: string[],
-  useExpandedFunctionCards: boolean
+  useExpandedFunctionCards: boolean,
+  canvasDimensions: CanvasDimensions
 ): [ReactFlowNode[], ReactFlowEdge[], Size2D, boolean] => {
   const [reactFlowNodes, setReactFlowNodes] = useState<ReactFlowNode[]>([]);
   const [reactFlowEdges, setReactFlowEdges] = useState<ReactFlowEdge[]>([]);
   const [diagramSize, setDiagramSize] = useState<Size2D>({ width: 0, height: 0 });
+
+  const translateExtentFunc = (): CanvasExtent => {
+    const xOffset = schemaNodeCardDefaultWidth * 2;
+    const yOffset = schemaNodeCardHeight * 2;
+
+    const xPos = canvasDimensions.canvasBlockWidth / canvasDimensions.canvasZoom - xOffset;
+    const yPos = canvasDimensions.canvasBlockHeight / canvasDimensions.canvasZoom - yOffset;
+
+    return [
+      [-xPos, -yPos],
+      [xPos + diagramSize.width, yPos + diagramSize.height],
+    ];
+  };
+  const translateExtent = translateExtentFunc();
 
   useEffect(() => {
     if (currentTargetSchemaNode) {
@@ -120,7 +138,7 @@ export const useLayout = (
       );
 
       // Compute layout
-      applyCustomLayout(layoutTreeFromCanvasNodes, functionNodes, useExpandedFunctionCards, false)
+      applyCustomLayout(layoutTreeFromCanvasNodes, functionNodes, useExpandedFunctionCards, false, translateExtent)
         .then((computedLayout) => {
           // Convert the calculated layout to ReactFlow nodes + edges
           setReactFlowNodes([

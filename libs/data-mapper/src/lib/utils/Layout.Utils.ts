@@ -1,3 +1,4 @@
+import type { CanvasExtent } from 'lib/ui/ReactFlowWrapper';
 import {
   expandedFunctionCardMaxWidth,
   schemaNodeCardDefaultWidth,
@@ -187,7 +188,8 @@ export const applyCustomLayout = async (
   graph: RootLayoutNode,
   functionDict: FunctionDictionary,
   useExpandedFunctionCards?: boolean,
-  isOverview?: boolean
+  isOverview?: boolean,
+  translateExtent?: CanvasExtent
 ): Promise<RootLayoutNode> => {
   const schemaNodeCardVGap = 8;
   const xInterval = (useExpandedFunctionCards ? expandedFunctionCardMaxWidth : simpleFunctionCardDiameter) * 1.5;
@@ -361,6 +363,11 @@ export const applyCustomLayout = async (
       }
 
       fnNodeYPos = noCollisionFnNodeYPos;
+    }
+
+    if (translateExtent && fnNodeXPos && translateExtent[1][0] <= fnNodeXPos) {
+      // greater x bound
+      fnNodeXPos = translateExtent[1][0] - xInterval;
     }
 
     // Final assignment

@@ -51,7 +51,7 @@ import type {
 import { ReactFlow, ConnectionLineType, useKeyPress, useNodesState } from 'reactflow';
 import { ActionCreators } from 'redux-undo';
 
-type CanvasExtent = [[number, number], [number, number]];
+export type CanvasExtent = [[number, number], [number, number]];
 
 interface ReactFlowWrapperProps {
   canvasBlockHeight: number;
@@ -171,6 +171,8 @@ export const ReactFlowWrapper = ({
 
   const [nodesState, setNodes, onNodesChange] = useNodesState([]);
 
+  const canvasSizing = { canvasBlockHeight, canvasBlockWidth, canvasZoom };
+
   // eslint-disable-next-line prefer-const
   let [nodes, edges, diagramSize] = useLayout(
     currentSourceSchemaNodes,
@@ -179,8 +181,23 @@ export const ReactFlowWrapper = ({
     connections,
     selectedItemKey,
     sourceSchemaOrdering,
-    useExpandedFunctionCards
+    useExpandedFunctionCards,
+    canvasSizing
   );
+
+  // Restrict canvas panning to certain bounds
+  const translateExtent = useMemo<CanvasExtent>(() => {
+    const xOffset = schemaNodeCardDefaultWidth * 2;
+    const yOffset = schemaNodeCardHeight * 2;
+
+    const xPos = canvasBlockWidth / canvasZoom - xOffset;
+    const yPos = canvasBlockHeight / canvasZoom - yOffset;
+
+    return [
+      [-xPos, -yPos],
+      [xPos + diagramSize.width, yPos + diagramSize.height],
+    ];
+  }, [diagramSize, canvasBlockHeight, canvasBlockWidth, canvasZoom]);
 
   if (nodesState.length !== nodes.length) {
     setNodes(nodes);
@@ -198,20 +215,6 @@ export const ReactFlowWrapper = ({
       nodes.find((reactFlowNode) => reactFlowNode.data?.schemaType && reactFlowNode.data.schemaType === SchemaType.Target)?.position.x ?? 0,
     [nodes]
   );
-
-  // Restrict canvas panning to certain bounds
-  const translateExtent = useMemo<CanvasExtent>(() => {
-    const xOffset = schemaNodeCardDefaultWidth * 2;
-    const yOffset = schemaNodeCardHeight * 2;
-
-    const xPos = canvasBlockWidth / canvasZoom - xOffset;
-    const yPos = canvasBlockHeight / canvasZoom - yOffset;
-
-    return [
-      [-xPos, -yPos],
-      [xPos + diagramSize.width, yPos + diagramSize.height],
-    ];
-  }, [diagramSize, canvasBlockHeight, canvasBlockWidth, canvasZoom]);
 
   const onFunctionNodeDrag: NodeDragHandler = (_event, node, _nodes) => {
     const unaffectedNodes = nodesState.filter((nodeFromState) => nodeFromState.id !== node.id);
