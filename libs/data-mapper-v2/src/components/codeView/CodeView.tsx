@@ -32,7 +32,7 @@ export const CodeView = () => {
 
   const codeViewLoc = intl.formatMessage({
     defaultMessage: "Code",
-    id: "M0xrm+",
+    id: 'U9SHxw',
     description: "Code view title",
   });
 
@@ -77,7 +77,7 @@ export const CodeView = () => {
   // );
 
   return(
-    <InlineDrawer open={isCodeViewOpen} className={styles.drawer}>
+    <InlineDrawer open={isCodeViewOpen} className={styles.drawer} position='end'>
       <DrawerHeader style={{display: 'flex', flexDirection: 'row'}}>
         <Code20Regular />
           <Text className={styles.titleTextStyle}>
