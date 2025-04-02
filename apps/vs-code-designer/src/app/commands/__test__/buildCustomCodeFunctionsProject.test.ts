@@ -33,14 +33,6 @@ vi.mock('vscode', () => ({
   },
 }));
 
-vi.mock('../../../extensionVariables', () => ({
-  ext: {
-    outputChannel: {
-      appendLog: vi.fn(),
-    },
-  },
-}));
-
 describe('buildWorkspaceCustomCodeFunctionsProjects', () => {
   let context: IActionContext;
   const testWorkspaceFolder = path.join('test', 'workspace', 'folder');

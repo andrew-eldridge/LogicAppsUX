@@ -15,27 +15,12 @@ import {
 import { TargetFramework } from '@microsoft/vscode-extension-logic-apps';
 import { ext } from '../../../extensionVariables';
 
-vi.mock('fs-extra', () => ({
-  statSync: vi.fn(),
-  readdir: vi.fn(),
-  readFile: vi.fn(),
-  pathExists: vi.fn(),
-}));
-
 vi.mock('verifyProjectUtils', () => ({
   isLogicAppProject: vi.fn(),
 }));
 
 vi.mock('workspaceUtils', () => ({
   getWorkspaceRoot: vi.fn(),
-}));
-
-vi.mock('../../../extensionVariables', () => ({
-  ext: {
-    outputChannel: {
-      appendLog: vi.fn(),
-    },
-  },
 }));
 
 describe('customCodeUtils', () => {
